@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Repositories\Contracts\DependenciaRepositoryInterface;
 use App\Repositories\Contracts\NoticiaRepositoryInterface;
 use App\Repositories\Contracts\PqrsdRepositoryInterface;
+use App\Repositories\Contracts\SedeRepositoryInterface;
 use App\Repositories\Contracts\ServidorPublicoRepositoryInterface;
 use App\Repositories\Contracts\TramiteRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Repositories\EloquentDependenciaRepository;
 use App\Repositories\EloquentNoticiaRepository;
 use App\Repositories\EloquentPqrsdRepository;
+use App\Repositories\EloquentSedeRepository;
 use App\Repositories\EloquentServidorPublicoRepository;
 use App\Repositories\EloquentTramiteRepository;
 use App\Repositories\EloquentUserRepository;
@@ -35,6 +39,8 @@ final class RepositoryServiceProvider extends ServiceProvider
         TramiteRepositoryInterface::class => EloquentTramiteRepository::class,
         PqrsdRepositoryInterface::class => EloquentPqrsdRepository::class,
         NoticiaRepositoryInterface::class => EloquentNoticiaRepository::class,
+        SedeRepositoryInterface::class => EloquentSedeRepository::class,
+        DependenciaRepositoryInterface::class => EloquentDependenciaRepository::class,
         // Services
         ServidorPublicoServiceInterface::class => ServidorPublicoService::class,
         PqrsdServiceInterface::class => PqrsdService::class,

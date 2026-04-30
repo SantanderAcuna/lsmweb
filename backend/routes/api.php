@@ -2,13 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\Admin\DependenciaController as AdminDependencia;
 use App\Http\Controllers\Api\Admin\NoticiaController as AdminNoticia;
+use App\Http\Controllers\Api\Admin\PermissionController as AdminPermission;
 use App\Http\Controllers\Api\Admin\PqrsdController as AdminPqrsd;
+use App\Http\Controllers\Api\Admin\RoleController as AdminRole;
+use App\Http\Controllers\Api\Admin\SedeController as AdminSede;
 use App\Http\Controllers\Api\Admin\ServidorPublicoController as AdminServidor;
 use App\Http\Controllers\Api\Admin\TramiteController as AdminTramite;
+use App\Http\Controllers\Api\Admin\UserController as AdminUser;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Public\DependenciaController as PublicDependencia;
 use App\Http\Controllers\Api\Public\NoticiaController as PublicNoticia;
 use App\Http\Controllers\Api\Public\PqrsdController as PublicPqrsd;
+use App\Http\Controllers\Api\Public\SedeController as PublicSede;
 use App\Http\Controllers\Api\Public\ServidorPublicoController as PublicServidor;
 use App\Http\Controllers\Api\Public\TramiteController as PublicTramite;
 use Illuminate\Support\Facades\Route;
@@ -46,21 +53,23 @@ Route::prefix('v1')->group(function (): void {
         Route::get('{slug}', [PublicNoticia::class, 'show'])->name('public.noticias.show');
     });
 
+    Route::get('sedes', [PublicSede::class, 'index'])->name('public.sedes.index');
+
+    Route::get('organigrama', [PublicDependencia::class, 'index'])->name('public.organigrama.index');
+
     /* -------------- Admin -------------- */
     Route::prefix('admin')->group(function (): void {
         Route::apiResource('servidores-publicos', AdminServidor::class)
-            ->parameters(['servidores-publicos' => 'servidor'])
-            ->names([
-                'index' => 'admin.servidores.index',
-                'store' => 'admin.servidores.store',
-                'show' => 'admin.servidores.show',
-                'update' => 'admin.servidores.update',
-                'destroy' => 'admin.servidores.destroy',
-            ]);
+            ->parameters(['servidores-publicos' => 'servidor']);
 
         Route::apiResource('tramites', AdminTramite::class);
-
         Route::apiResource('noticias', AdminNoticia::class);
+        Route::apiResource('sedes', AdminSede::class);
+        Route::apiResource('dependencias', AdminDependencia::class);
+        Route::apiResource('usuarios', AdminUser::class)
+            ->parameters(['usuarios' => 'user']);
+        Route::apiResource('roles', AdminRole::class);
+        Route::get('permisos', [AdminPermission::class, 'index'])->name('admin.permisos.index');
 
         Route::prefix('pqrsd')->group(function (): void {
             Route::get('/', [AdminPqrsd::class, 'index'])->name('admin.pqrsd.index');
