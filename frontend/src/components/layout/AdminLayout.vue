@@ -19,6 +19,15 @@ const auth = useAuthStore()
             class="list-group-item list-group-item-action">
             <FaIcon icon="users" class="me-2" /> Servidores
           </RouterLink>
+          <span v-if="auth.hasPermission('tramites.view')" class="list-group-item text-muted small">
+            <FaIcon icon="briefcase" class="me-2" /> Trámites <span class="badge bg-secondary">próximamente</span>
+          </span>
+          <span v-if="auth.hasPermission('noticias.view')" class="list-group-item text-muted small">
+            <FaIcon icon="globe" class="me-2" /> Noticias <span class="badge bg-secondary">próximamente</span>
+          </span>
+          <span v-if="auth.hasPermission('pqrsd.view')" class="list-group-item text-muted small">
+            <FaIcon icon="envelope" class="me-2" /> PQRSD <span class="badge bg-secondary">próximamente</span>
+          </span>
         </div>
       </div>
     </aside>

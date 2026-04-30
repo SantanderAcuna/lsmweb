@@ -19,7 +19,7 @@ async function handleLogout(): Promise<void> {
     <div class="container">
       <RouterLink class="navbar-brand fw-bold" :to="{ name: 'home' }">
         <FaIcon icon="house" class="me-2" />
-        Alcaldía Distrital de Santa Marta
+        Alcaldía de Santa Marta
       </RouterLink>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"
         aria-controls="navMain" aria-expanded="false" aria-label="Alternar navegación">
@@ -27,17 +27,46 @@ async function handleLogout(): Promise<void> {
       </button>
       <div id="navMain" class="collapse navbar-collapse">
         <ul class="navbar-nav me-auto">
-          <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'public.servidores.lista' }">
-            <FaIcon icon="users" class="me-1" /> Directorio
-          </RouterLink></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <FaIcon icon="user-shield" class="me-1" /> Transparencia
+            </a>
+            <ul class="dropdown-menu">
+              <li><RouterLink class="dropdown-item" :to="{ name: 'public.servidores.lista' }">
+                <FaIcon icon="users" class="me-2" />Directorio de servidores
+              </RouterLink></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <FaIcon icon="briefcase" class="me-1" /> Servicios
+            </a>
+            <ul class="dropdown-menu">
+              <li><RouterLink class="dropdown-item" :to="{ name: 'public.tramites.lista' }">
+                <FaIcon icon="list" class="me-2" />Trámites y servicios
+              </RouterLink></li>
+              <li><RouterLink class="dropdown-item" :to="{ name: 'public.pqrsd.crear' }">
+                <FaIcon icon="envelope" class="me-2" />Radicar PQRSD
+              </RouterLink></li>
+              <li><RouterLink class="dropdown-item" :to="{ name: 'public.pqrsd.consultar' }">
+                <FaIcon icon="search" class="me-2" />Consultar PQRSD
+              </RouterLink></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" :to="{ name: 'public.noticias.lista' }">
+              <FaIcon icon="globe" class="me-1" />Noticias
+            </RouterLink>
+          </li>
         </ul>
+
         <ul class="navbar-nav">
           <template v-if="!auth.isAuthenticated">
             <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'auth.login' }">
               <FaIcon icon="sign-in-alt" class="me-1" /> Iniciar sesión
             </RouterLink></li>
             <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'auth.register' }">
-              <FaIcon icon="user-plus" class="me-1" /> Registrarse
+              <FaIcon icon="user-plus" class="me-1" /> Registro
             </RouterLink></li>
           </template>
           <template v-else>

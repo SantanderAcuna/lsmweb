@@ -83,3 +83,26 @@ php artisan test
 ## Credenciales de demo (seed)
 - `admin@santamarta.gov.co` / `Sm@2026Secure!` — rol `admin`
 - `rrhh@santamarta.gov.co` / `Sm@2026Secure!` — rol `editor_rrhh`
+
+## Módulos del sistema (ver `specs/002-modulos-completos/spec.md`)
+
+| Sección del sitio oficial | Módulo | Estado |
+|---------------------------|--------|--------|
+| Transparencia → Directorio servidores | `servidores_publicos` (+ formaciones, experiencias) | ✅ Completo |
+| Transparencia → Organigrama / Gabinete | `dependencias` | ✅ |
+| Servicios → Trámites y servicios | `tramites` | ✅ CRUD completo |
+| Servicios → PQRSD | `pqrsd` (radicar/consultar/asignar/responder) | ✅ Completo |
+| Servicios → Sedes | `sedes` | ✅ Migración + modelo |
+| Comunicaciones → Noticias | `noticias` | ✅ CRUD completo |
+| Catálogo geográfico (4FN) | `paises`, `departamentos`, `municipios` | ✅ |
+
+### Roles
+| Rol | Uso |
+|-----|-----|
+| `admin` | Acceso total |
+| `editor_rrhh` | Servidores y dependencias |
+| `editor_comunicaciones` | Noticias |
+| `editor_servicios` | Trámites y sedes |
+| `oficial_pqrsd` | Asignar/responder PQRSD |
+| `auditor` | Solo lectura + exportes |
+| `ciudadano` | Público + radicar PQRSD |
