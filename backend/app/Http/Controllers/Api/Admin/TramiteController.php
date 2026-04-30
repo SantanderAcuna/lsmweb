@@ -10,6 +10,7 @@ use App\Http\Requests\Admin\UpdateTramiteRequest;
 use App\Http\Resources\TramiteResource;
 use App\Models\Tramite;
 use App\Repositories\Contracts\TramiteRepositoryInterface;
+use App\Services\TramiteServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -18,8 +19,10 @@ use Illuminate\Routing\Controllers\Middleware;
 
 final class TramiteController extends Controller implements HasMiddleware
 {
-    public function __construct(private readonly TramiteRepositoryInterface $repository)
-    {
+    public function __construct(
+        private readonly TramiteRepositoryInterface $repository,
+        private readonly TramiteServiceInterface $service,
+    ) {
     }
 
     /** @return list<\Illuminate\Routing\Controllers\Middleware|string> */
@@ -51,11 +54,7 @@ final class TramiteController extends Controller implements HasMiddleware
 
     public function store(StoreTramiteRequest $request): JsonResponse
     {
-        $data = $request->validated();
-        $data['created_by'] = $request->user()->id;
-        $data['updated_by'] = $request->user()->id;
-
-        $tramite = $this->repository->create($data);
+        $tramite = $this->service->crear($request->validated(), $request->user());
 
         return response()->json([
             'message' => 'Trámite creado exitosamente.',
@@ -75,10 +74,7 @@ final class TramiteController extends Controller implements HasMiddleware
 
     public function update(UpdateTramiteRequest $request, Tramite $tramite): JsonResponse
     {
-        $data = $request->validated();
-        $data['updated_by'] = $request->user()->id;
-
-        $tramite = $this->repository->update($tramite, $data);
+        $tramite = $this->service->actualizar($tramite, $request->validated(), $request->user());
 
         return response()->json([
             'message' => 'Trámite actualizado correctamente.',
@@ -88,7 +84,7 @@ final class TramiteController extends Controller implements HasMiddleware
 
     public function destroy(Tramite $tramite): JsonResponse
     {
-        $this->repository->delete($tramite);
+        $this->service->eliminar($tramite);
 
         return response()->json(['message' => 'Trámite eliminado correctamente.']);
     }

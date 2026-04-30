@@ -10,6 +10,7 @@ use App\Http\Requests\Admin\UpdateNoticiaRequest;
 use App\Http\Resources\NoticiaResource;
 use App\Models\Noticia;
 use App\Repositories\Contracts\NoticiaRepositoryInterface;
+use App\Services\NoticiaServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -18,8 +19,10 @@ use Illuminate\Routing\Controllers\Middleware;
 
 final class NoticiaController extends Controller implements HasMiddleware
 {
-    public function __construct(private readonly NoticiaRepositoryInterface $repository)
-    {
+    public function __construct(
+        private readonly NoticiaRepositoryInterface $repository,
+        private readonly NoticiaServiceInterface $service,
+    ) {
     }
 
     /** @return list<\Illuminate\Routing\Controllers\Middleware|string> */
@@ -50,11 +53,7 @@ final class NoticiaController extends Controller implements HasMiddleware
 
     public function store(StoreNoticiaRequest $request): JsonResponse
     {
-        $data = $request->validated();
-        $data['autor_id'] = $request->user()->id;
-        $data['actualizado_por'] = $request->user()->id;
-
-        $noticia = $this->repository->create($data);
+        $noticia = $this->service->crear($request->validated(), $request->user());
 
         return response()->json([
             'message' => 'Noticia creada exitosamente.',
@@ -74,10 +73,7 @@ final class NoticiaController extends Controller implements HasMiddleware
 
     public function update(UpdateNoticiaRequest $request, Noticia $noticia): JsonResponse
     {
-        $data = $request->validated();
-        $data['actualizado_por'] = $request->user()->id;
-
-        $noticia = $this->repository->update($noticia, $data);
+        $noticia = $this->service->actualizar($noticia, $request->validated(), $request->user());
 
         return response()->json([
             'message' => 'Noticia actualizada correctamente.',
@@ -87,7 +83,7 @@ final class NoticiaController extends Controller implements HasMiddleware
 
     public function destroy(Noticia $noticia): JsonResponse
     {
-        $this->repository->delete($noticia);
+        $this->service->eliminar($noticia);
 
         return response()->json(['message' => 'Noticia eliminada correctamente.']);
     }

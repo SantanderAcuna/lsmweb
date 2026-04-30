@@ -5,10 +5,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useToast } from 'vue-toastification'
 import { ServidorApi } from '@/api/servidor.api'
 import { useAuthStore } from '@/stores/auth.store'
+import { useConfirm } from '@/composables/useConfirm'
+import Paginator from '@/components/ui/Paginator.vue'
 
 const auth = useAuthStore()
 const toast = useToast()
 const qc = useQueryClient()
+const { confirm } = useConfirm()
 
 const q = ref('')
 const page = ref(1)
@@ -29,10 +32,14 @@ const eliminarMutation = useMutation({
   }
 })
 
-function eliminar(id: number, nombre: string): void {
-  if (confirm(`¿Eliminar al servidor ${nombre}?`)) {
-    eliminarMutation.mutate(id)
-  }
+async function eliminar(id: number, nombre: string): Promise<void> {
+  const ok = await confirm({
+    title: 'Eliminar servidor',
+    message: `¿Está seguro que desea eliminar al servidor ${nombre}? Esta acción es irreversible.`,
+    confirmText: 'Eliminar',
+    confirmVariant: 'danger'
+  })
+  if (ok) eliminarMutation.mutate(id)
 }
 </script>
 
@@ -46,7 +53,8 @@ function eliminar(id: number, nombre: string): void {
   </div>
 
   <div class="mb-3">
-    <input v-model="q" type="search" class="form-control" placeholder="Buscar..." />
+    <label for="srv-search" class="visually-hidden">Buscar servidor</label>
+    <input id="srv-search" v-model="q" type="search" class="form-control" placeholder="Buscar..." />
   </div>
 
   <div v-if="isLoading" class="text-center my-4"><FaIcon icon="spinner" spin class="fa-2x text-primary" /></div>
@@ -70,12 +78,15 @@ function eliminar(id: number, nombre: string): void {
           <td class="text-end">
             <RouterLink v-if="auth.hasPermission('servidores.update')"
               class="btn btn-sm btn-outline-primary me-1"
-              :to="{ name: 'admin.servidores.editar', params: { id: s.id } }">
+              :to="{ name: 'admin.servidores.editar', params: { id: s.id } }"
+              :aria-label="`Editar ${s.nombre_completo}`">
               <FaIcon icon="pen" />
             </RouterLink>
             <button v-if="auth.hasPermission('servidores.delete')"
+              type="button"
               class="btn btn-sm btn-outline-danger"
               :disabled="eliminarMutation.isPending.value"
+              :aria-label="`Eliminar ${s.nombre_completo}`"
               @click="eliminar(s.id, s.nombre_completo)">
               <FaIcon icon="trash" />
             </button>
@@ -83,5 +94,6 @@ function eliminar(id: number, nombre: string): void {
         </tr>
       </tbody>
     </table>
+    <Paginator :meta="data.meta" @page-change="(p) => page = p" />
   </div>
 </template>

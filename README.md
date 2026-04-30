@@ -63,7 +63,8 @@ composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate --seed
-php artisan passport:install
+php artisan passport:keys                # genera oauth-private.key / oauth-public.key
+php artisan passport:client --personal --name="LSM Web SPA"
 php artisan serve  # http://localhost:8000
 ```
 

@@ -1,0 +1,42 @@
+# Dependencies — re-installed inside the image
+vendor
+node_modules
+
+# Secrets / local environment
+.env
+.env.*
+!.env.example
+
+# Tests / dev artefacts
+tests
+.phpunit.cache
+.phpunit.result.cache
+phpunit.xml.bak
+coverage
+
+# Runtime artefacts that must not leak into the image
+storage/logs/*
+!storage/logs/.gitkeep
+storage/framework/cache/*
+!storage/framework/cache/.gitkeep
+storage/framework/sessions/*
+!storage/framework/sessions/.gitkeep
+storage/framework/views/*
+!storage/framework/views/.gitkeep
+
+# VCS / IDE
+.git
+.gitignore
+.gitattributes
+.idea
+.vscode
+*.log
+
+# Docker meta — avoid recursive context
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# OS
+.DS_Store
+Thumbs.db

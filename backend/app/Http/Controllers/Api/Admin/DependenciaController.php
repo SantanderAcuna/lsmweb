@@ -10,6 +10,7 @@ use App\Http\Requests\Admin\UpdateDependenciaRequest;
 use App\Http\Resources\DependenciaResource;
 use App\Models\Dependencia;
 use App\Repositories\Contracts\DependenciaRepositoryInterface;
+use App\Services\DependenciaServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -18,8 +19,10 @@ use Illuminate\Routing\Controllers\Middleware;
 
 final class DependenciaController extends Controller implements HasMiddleware
 {
-    public function __construct(private readonly DependenciaRepositoryInterface $repository)
-    {
+    public function __construct(
+        private readonly DependenciaRepositoryInterface $repository,
+        private readonly DependenciaServiceInterface $service,
+    ) {
     }
 
     /** @return list<\Illuminate\Routing\Controllers\Middleware|string> */
@@ -50,7 +53,7 @@ final class DependenciaController extends Controller implements HasMiddleware
 
     public function store(StoreDependenciaRequest $request): JsonResponse
     {
-        $dep = $this->repository->create($request->validated());
+        $dep = $this->service->crear($request->validated(), $request->user());
 
         return response()->json([
             'message' => 'Dependencia creada exitosamente.',
@@ -70,7 +73,7 @@ final class DependenciaController extends Controller implements HasMiddleware
 
     public function update(UpdateDependenciaRequest $request, Dependencia $dependencia): JsonResponse
     {
-        $dep = $this->repository->update($dependencia, $request->validated());
+        $dep = $this->service->actualizar($dependencia, $request->validated(), $request->user());
 
         return response()->json([
             'message' => 'Dependencia actualizada correctamente.',
@@ -86,7 +89,7 @@ final class DependenciaController extends Controller implements HasMiddleware
             ], 409);
         }
 
-        $this->repository->delete($dependencia);
+        $this->service->eliminar($dependencia);
 
         return response()->json(['message' => 'Dependencia eliminada correctamente.']);
     }

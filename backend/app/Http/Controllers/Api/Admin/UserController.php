@@ -9,15 +9,22 @@ use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Http\Resources\Auth\UserResource;
 use App\Models\User;
+use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Services\UsuarioServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\Hash;
 
 final class UserController extends Controller implements HasMiddleware
 {
+    public function __construct(
+        private readonly UserRepositoryInterface $repository,
+        private readonly UsuarioServiceInterface $service,
+    ) {
+    }
+
     /** @return list<\Illuminate\Routing\Controllers\Middleware|string> */
     public static function middleware(): array
     {
@@ -39,36 +46,17 @@ final class UserController extends Controller implements HasMiddleware
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
 
-        $q = User::query()->with(['roles', 'permissions']);
-
-        if (! empty($params['q'])) {
-            $like = '%' . str_replace(['%', '_'], ['\%', '\_'], $params['q']) . '%';
-            $q->where(fn ($qq) => $qq->where('name', 'like', $like)->orWhere('email', 'like', $like));
-        }
-        if (! empty($params['estado'])) {
-            $q->where('estado', $params['estado']);
-        }
-
-        return UserResource::collection(
-            $q->orderBy('name')->paginate($params['per_page'] ?? 15)->withQueryString()
-        )->additional(['message' => 'Listado obtenido correctamente.']);
+        return UserResource::collection($this->repository->paginate($params))
+            ->additional(['message' => 'Listado obtenido correctamente.']);
     }
 
     public function store(StoreUserRequest $request): JsonResponse
     {
-        $data = $request->validated();
-        $roles = $data['roles'] ?? [];
-        unset($data['roles']);
-        $data['password'] = Hash::make($data['password']);
-
-        $user = User::query()->create($data);
-        if ($roles !== []) {
-            $user->syncRoles($roles);
-        }
+        $user = $this->service->crear($request->validated(), $request->user());
 
         return response()->json([
             'message' => 'Usuario creado exitosamente.',
-            'data' => new UserResource($user->fresh(['roles', 'permissions'])),
+            'data' => new UserResource($user),
         ], 201);
     }
 
@@ -84,24 +72,11 @@ final class UserController extends Controller implements HasMiddleware
 
     public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
-        $data = $request->validated();
-        $roles = $data['roles'] ?? null;
-        unset($data['roles']);
-
-        if (! empty($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        } else {
-            unset($data['password']);
-        }
-
-        $user->fill($data)->save();
-        if ($roles !== null) {
-            $user->syncRoles($roles);
-        }
+        $user = $this->service->actualizar($user, $request->validated(), $request->user());
 
         return response()->json([
             'message' => 'Usuario actualizado correctamente.',
-            'data' => new UserResource($user->fresh(['roles', 'permissions'])),
+            'data' => new UserResource($user),
         ]);
     }
 
@@ -111,7 +86,7 @@ final class UserController extends Controller implements HasMiddleware
             return response()->json(['message' => 'No puede eliminarse a sí mismo.'], 409);
         }
 
-        $user->delete();
+        $this->service->eliminar($user);
 
         return response()->json(['message' => 'Usuario eliminado correctamente.']);
     }

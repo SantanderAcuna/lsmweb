@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { useToast } from 'vue-toastification'
 import { ServidorApi, type ListarParams } from '@/api/servidor.api'
 import { useDebouncedRef } from '@/composables/useDebouncedRef'
+import Paginator from '@/components/ui/Paginator.vue'
 
 const toast = useToast()
 const termino = ref('')
@@ -117,22 +118,6 @@ async function descargar(formato: 'csv' | 'json'): Promise<void> {
       </table>
     </div>
 
-    <nav aria-label="Paginación" v-if="data.meta.last_page > 1">
-      <ul class="pagination justify-content-center">
-        <li class="page-item" :class="{ disabled: page <= 1 }">
-          <button class="page-link" @click="page = page - 1">
-            <FaIcon icon="chevron-left" class="me-1" />Anterior
-          </button>
-        </li>
-        <li class="page-item active" aria-current="page">
-          <span class="page-link">{{ data.meta.current_page }} / {{ data.meta.last_page }}</span>
-        </li>
-        <li class="page-item" :class="{ disabled: page >= data.meta.last_page }">
-          <button class="page-link" @click="page = page + 1">
-            Siguiente<FaIcon icon="chevron-right" class="ms-1" />
-          </button>
-        </li>
-      </ul>
-    </nav>
+    <Paginator :meta="data.meta" @page-change="(p) => page = p" />
   </template>
 </template>

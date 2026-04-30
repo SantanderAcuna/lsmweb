@@ -5,14 +5,25 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useToast } from 'vue-toastification'
 import { TramiteApi } from '@/api/tramite.api'
 import { useAuthStore } from '@/stores/auth.store'
+import { useConfirm } from '@/composables/useConfirm'
+import Paginator from '@/components/ui/Paginator.vue'
 
 const auth = useAuthStore()
 const toast = useToast()
 const qc = useQueryClient()
+const { confirm } = useConfirm()
 
 const q = ref('')
+const categoria = ref('')
+const publicado = ref<'' | 'true' | 'false'>('')
 const page = ref(1)
-const params = computed(() => ({ q: q.value || undefined, page: page.value }))
+
+const params = computed(() => ({
+  q: q.value || undefined,
+  categoria: categoria.value || undefined,
+  publicado: publicado.value === '' ? undefined : publicado.value === 'true',
+  page: page.value
+}))
 
 const { data, isLoading } = useQuery({
   queryKey: ['admin-tramites', params],
@@ -24,6 +35,16 @@ const eliminar = useMutation({
   mutationFn: (id: number) => TramiteApi.eliminar(id),
   onSuccess: (r) => { toast.success(r.message); qc.invalidateQueries({ queryKey: ['admin-tramites'] }) }
 })
+
+async function pedirEliminar(id: number, nombre: string): Promise<void> {
+  const ok = await confirm({
+    title: 'Eliminar trámite',
+    message: `¿Está seguro que desea eliminar el trámite "${nombre}"?`,
+    confirmText: 'Eliminar',
+    confirmVariant: 'danger'
+  })
+  if (ok) eliminar.mutate(id)
+}
 </script>
 
 <template>
@@ -35,7 +56,33 @@ const eliminar = useMutation({
     </RouterLink>
   </div>
 
-  <input v-model="q" type="search" class="form-control mb-3" placeholder="Buscar..." />
+  <div class="row g-2 mb-3">
+    <div class="col-md-6">
+      <label for="t-search" class="visually-hidden">Buscar trámite</label>
+      <input id="t-search" v-model="q" type="search" class="form-control" placeholder="Buscar..." />
+    </div>
+    <div class="col-md-3">
+      <label for="t-categoria" class="visually-hidden">Filtrar por categoría</label>
+      <select id="t-categoria" v-model="categoria" class="form-select" aria-label="Filtrar por categoría">
+        <option value="">Todas las categorías</option>
+        <option value="Salud">Salud</option>
+        <option value="Educacion">Educación</option>
+        <option value="Hacienda">Hacienda</option>
+        <option value="Movilidad">Movilidad</option>
+        <option value="Vivienda">Vivienda</option>
+        <option value="Cultura">Cultura</option>
+        <option value="Otros">Otros</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="t-publicado" class="visually-hidden">Filtrar por estado</label>
+      <select id="t-publicado" v-model="publicado" class="form-select" aria-label="Filtrar por estado de publicación">
+        <option value="">Todos los estados</option>
+        <option value="true">Publicados</option>
+        <option value="false">Borradores</option>
+      </select>
+    </div>
+  </div>
 
   <div v-if="isLoading" class="text-center my-4"><FaIcon icon="spinner" spin class="fa-2x text-primary" /></div>
   <div v-else-if="data" class="table-responsive">
@@ -52,18 +99,22 @@ const eliminar = useMutation({
           <td class="text-end">
             <RouterLink v-if="auth.hasPermission('tramites.update')"
               class="btn btn-sm btn-outline-primary me-1"
-              :to="{ name: 'admin.tramites.editar', params: { id: t.id } }">
+              :to="{ name: 'admin.tramites.editar', params: { id: t.id } }"
+              :aria-label="`Editar ${t.nombre}`">
               <FaIcon icon="pen" />
             </RouterLink>
             <button v-if="auth.hasPermission('tramites.delete')"
+              type="button"
               class="btn btn-sm btn-outline-danger"
               :disabled="eliminar.isPending.value"
-              @click="confirm(`¿Eliminar ${t.nombre}?`) && eliminar.mutate(t.id)">
+              :aria-label="`Eliminar ${t.nombre}`"
+              @click="pedirEliminar(t.id, t.nombre)">
               <FaIcon icon="trash" />
             </button>
           </td>
         </tr>
       </tbody>
     </table>
+    <Paginator :meta="data.meta" @page-change="(p) => page = p" />
   </div>
 </template>

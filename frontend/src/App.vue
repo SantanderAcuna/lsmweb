@@ -3,6 +3,7 @@ import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import PublicNavbar from '@/components/layout/PublicNavbar.vue'
 import PublicFooter from '@/components/layout/PublicFooter.vue'
+import ConfirmHost from '@/components/ui/ConfirmHost.vue'
 import { useAuthStore } from '@/stores/auth.store'
 
 const auth = useAuthStore()
@@ -22,4 +23,5 @@ onMounted(async () => {
     <RouterView />
   </main>
   <PublicFooter />
+  <ConfirmHost />
 </template>

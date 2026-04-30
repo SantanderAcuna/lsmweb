@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreRoleRequest;
 use App\Http\Requests\Admin\UpdateRoleRequest;
 use App\Http\Resources\RoleResource;
+use App\Services\RoleServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -17,6 +18,10 @@ use Spatie\Permission\Models\Role;
 
 final class RoleController extends Controller implements HasMiddleware
 {
+    public function __construct(private readonly RoleServiceInterface $service)
+    {
+    }
+
     /** @return list<\Illuminate\Routing\Controllers\Middleware|string> */
     public static function middleware(): array
     {
@@ -49,17 +54,11 @@ final class RoleController extends Controller implements HasMiddleware
 
     public function store(StoreRoleRequest $request): JsonResponse
     {
-        $data = $request->validated();
-        $perms = $data['permissions'] ?? [];
-
-        $role = Role::create(['name' => $data['name'], 'guard_name' => 'api']);
-        if ($perms !== []) {
-            $role->syncPermissions($perms);
-        }
+        $role = $this->service->crear($request->validated(), $request->user());
 
         return response()->json([
             'message' => 'Rol creado exitosamente.',
-            'data' => new RoleResource($role->fresh('permissions')),
+            'data' => new RoleResource($role),
         ], 201);
     }
 
@@ -81,18 +80,11 @@ final class RoleController extends Controller implements HasMiddleware
             return response()->json(['message' => 'No se puede renombrar el rol admin.'], 409);
         }
 
-        if (! empty($data['name'])) {
-            $role->name = $data['name'];
-            $role->save();
-        }
-
-        if (array_key_exists('permissions', $data)) {
-            $role->syncPermissions($data['permissions']);
-        }
+        $role = $this->service->actualizar($role, $data, $request->user());
 
         return response()->json([
             'message' => 'Rol actualizado correctamente.',
-            'data' => new RoleResource($role->fresh('permissions')),
+            'data' => new RoleResource($role),
         ]);
     }
 
@@ -102,7 +94,7 @@ final class RoleController extends Controller implements HasMiddleware
             return response()->json(['message' => 'No se puede eliminar el rol del sistema.'], 409);
         }
 
-        $role->delete();
+        $this->service->eliminar($role);
 
         return response()->json(['message' => 'Rol eliminado correctamente.']);
     }

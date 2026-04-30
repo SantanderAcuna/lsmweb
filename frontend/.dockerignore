@@ -1,0 +1,29 @@
+# Build outputs — produced inside the image
+node_modules
+dist
+.vite
+
+# Test artefacts
+coverage
+.nyc_output
+
+# Local env
+.env
+.env.*
+!.env.example
+
+# VCS / IDE
+.git
+.gitignore
+.gitattributes
+.idea
+.vscode
+*.log
+
+# Docker meta
+Dockerfile
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db

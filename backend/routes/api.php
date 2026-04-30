@@ -23,10 +23,14 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function (): void {
     /* ---------------- Auth ---------------- */
     Route::prefix('auth')->group(function (): void {
-        Route::post('register', [AuthController::class, 'register'])->name('auth.register');
-        Route::post('login', [AuthController::class, 'login'])->name('auth.login');
-        Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->name('auth.forgot');
-        Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('auth.reset');
+        Route::post('register', [AuthController::class, 'register'])
+            ->middleware('throttle:login')->name('auth.register');
+        Route::post('login', [AuthController::class, 'login'])
+            ->middleware('throttle:login')->name('auth.login');
+        Route::post('forgot-password', [AuthController::class, 'forgotPassword'])
+            ->middleware('throttle:password-reset')->name('auth.forgot');
+        Route::post('reset-password', [AuthController::class, 'resetPassword'])
+            ->middleware('throttle:password-reset')->name('auth.reset');
         Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
         Route::get('me', [AuthController::class, 'me'])->name('auth.me');
     });
@@ -44,8 +48,10 @@ Route::prefix('v1')->group(function (): void {
     });
 
     Route::prefix('pqrsd')->group(function (): void {
-        Route::post('/', [PublicPqrsd::class, 'store'])->name('public.pqrsd.store');
-        Route::get('consultar/{radicado}', [PublicPqrsd::class, 'consultar'])->name('public.pqrsd.consultar');
+        Route::post('/', [PublicPqrsd::class, 'store'])
+            ->middleware('throttle:pqrsd')->name('public.pqrsd.store');
+        Route::get('consultar/{radicado}', [PublicPqrsd::class, 'consultar'])
+            ->name('public.pqrsd.consultar');
     });
 
     Route::prefix('noticias')->group(function (): void {

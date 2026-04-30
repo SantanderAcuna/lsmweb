@@ -1,0 +1,37 @@
+# Repo-root .dockerignore — applies when building from `.` as a context.
+# Per-service Dockerfiles use ./backend or ./frontend as context and have
+# their own .dockerignore, but this protects ad-hoc root builds and keeps
+# tooling (e.g. `docker buildx bake`) honest.
+
+.git
+.github
+.gitignore
+.gitattributes
+
+# Local environments
+.env
+.env.*
+!.env.docker.example
+
+# Service-local artefacts
+backend/vendor
+backend/.phpunit.cache
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+
+frontend/node_modules
+frontend/dist
+frontend/.vite
+frontend/coverage
+
+# Specs & docs (not needed inside images)
+specs
+README.md
+
+# IDE / OS
+.idea
+.vscode
+.DS_Store
+Thumbs.db

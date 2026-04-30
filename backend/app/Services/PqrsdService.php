@@ -36,6 +36,7 @@ final class PqrsdService implements PqrsdServiceInterface
             'asignado_a' => $usuarioId,
             'dependencia_asignada_id' => $dependenciaId,
             'estado' => 'EN_TRAMITE',
+            'updated_by' => $usuarioId,
         ]);
     }
 
@@ -46,6 +47,7 @@ final class PqrsdService implements PqrsdServiceInterface
             'respondida_en' => now(),
             'estado' => 'RESPONDIDA',
             'asignado_a' => $autor->id,
+            'updated_by' => $autor->id,
         ]);
     }
 

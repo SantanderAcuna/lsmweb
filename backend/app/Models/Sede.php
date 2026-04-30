@@ -18,6 +18,7 @@ final class Sede extends Model
     protected $fillable = [
         'nombre', 'municipio_id', 'direccion', 'latitud', 'longitud',
         'telefono', 'correo', 'horario_atencion', 'activo',
+        'created_by', 'updated_by',
     ];
 
     protected $casts = [
@@ -29,6 +30,16 @@ final class Sede extends Model
     public function municipio(): BelongsTo
     {
         return $this->belongsTo(Municipio::class);
+    }
+
+    public function creador(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function actualizador(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function scopeActivas(Builder $q): Builder

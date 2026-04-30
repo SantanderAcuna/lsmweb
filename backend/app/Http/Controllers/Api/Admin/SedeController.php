@@ -10,6 +10,7 @@ use App\Http\Requests\Admin\UpdateSedeRequest;
 use App\Http\Resources\SedeResource;
 use App\Models\Sede;
 use App\Repositories\Contracts\SedeRepositoryInterface;
+use App\Services\SedeServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -18,8 +19,10 @@ use Illuminate\Routing\Controllers\Middleware;
 
 final class SedeController extends Controller implements HasMiddleware
 {
-    public function __construct(private readonly SedeRepositoryInterface $repository)
-    {
+    public function __construct(
+        private readonly SedeRepositoryInterface $repository,
+        private readonly SedeServiceInterface $service,
+    ) {
     }
 
     /** @return list<\Illuminate\Routing\Controllers\Middleware|string> */
@@ -50,7 +53,7 @@ final class SedeController extends Controller implements HasMiddleware
 
     public function store(StoreSedeRequest $request): JsonResponse
     {
-        $sede = $this->repository->create($request->validated());
+        $sede = $this->service->crear($request->validated(), $request->user());
 
         return response()->json([
             'message' => 'Sede creada exitosamente.',
@@ -70,7 +73,7 @@ final class SedeController extends Controller implements HasMiddleware
 
     public function update(UpdateSedeRequest $request, Sede $sede): JsonResponse
     {
-        $sede = $this->repository->update($sede, $request->validated());
+        $sede = $this->service->actualizar($sede, $request->validated(), $request->user());
 
         return response()->json([
             'message' => 'Sede actualizada correctamente.',
@@ -80,7 +83,7 @@ final class SedeController extends Controller implements HasMiddleware
 
     public function destroy(Sede $sede): JsonResponse
     {
-        $this->repository->delete($sede);
+        $this->service->eliminar($sede);
 
         return response()->json(['message' => 'Sede eliminada correctamente.']);
     }

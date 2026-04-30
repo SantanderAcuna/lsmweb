@@ -20,10 +20,22 @@ use App\Repositories\EloquentTramiteRepository;
 use App\Repositories\EloquentUserRepository;
 use App\Services\Auth\AuthServiceInterface;
 use App\Services\Auth\PassportAuthService;
+use App\Services\DependenciaService;
+use App\Services\DependenciaServiceInterface;
+use App\Services\NoticiaService;
+use App\Services\NoticiaServiceInterface;
 use App\Services\PqrsdService;
 use App\Services\PqrsdServiceInterface;
+use App\Services\RoleService;
+use App\Services\RoleServiceInterface;
+use App\Services\SedeService;
+use App\Services\SedeServiceInterface;
 use App\Services\ServidorPublicoService;
 use App\Services\ServidorPublicoServiceInterface;
+use App\Services\TramiteService;
+use App\Services\TramiteServiceInterface;
+use App\Services\UsuarioService;
+use App\Services\UsuarioServiceInterface;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -44,6 +56,12 @@ final class RepositoryServiceProvider extends ServiceProvider
         // Services
         ServidorPublicoServiceInterface::class => ServidorPublicoService::class,
         PqrsdServiceInterface::class => PqrsdService::class,
+        TramiteServiceInterface::class => TramiteService::class,
+        NoticiaServiceInterface::class => NoticiaService::class,
+        SedeServiceInterface::class => SedeService::class,
+        DependenciaServiceInterface::class => DependenciaService::class,
+        UsuarioServiceInterface::class => UsuarioService::class,
+        RoleServiceInterface::class => RoleService::class,
         AuthServiceInterface::class => PassportAuthService::class,
     ];
 }

@@ -4,10 +4,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useToast } from 'vue-toastification'
 import { PermisoApi, RolApi } from '@/api/usuario.api'
 import { useAuthStore } from '@/stores/auth.store'
+import { useConfirm } from '@/composables/useConfirm'
 
 const auth = useAuthStore()
 const toast = useToast()
 const qc = useQueryClient()
+const { confirm } = useConfirm()
 
 const { data: roles, isLoading: loadingRoles } = useQuery({
   queryKey: ['roles'],
@@ -55,6 +57,16 @@ function nuevo(): void {
   nombreNuevo.value = ''
   permisosSeleccionados.value = []
 }
+
+async function pedirEliminar(id: number, nombre: string): Promise<void> {
+  const ok = await confirm({
+    title: 'Eliminar rol',
+    message: `¿Está seguro que desea eliminar el rol "${nombre}"? Los usuarios pierden este rol.`,
+    confirmText: 'Eliminar',
+    confirmVariant: 'danger'
+  })
+  if (ok) eliminar.mutate(id)
+}
 </script>
 
 <template>
@@ -77,9 +89,12 @@ function nuevo(): void {
               @click="comenzarEdicion(r.id, r.name, r.permissions)">
               <FaIcon icon="pen" />
             </button>
-            <button v-if="auth.hasPermission('roles.delete')" class="btn btn-sm btn-outline-danger"
+            <button v-if="auth.hasPermission('roles.delete')"
+              type="button"
+              class="btn btn-sm btn-outline-danger"
               :disabled="eliminar.isPending.value"
-              @click="confirm(`¿Eliminar rol ${r.name}?`) && eliminar.mutate(r.id)">
+              :aria-label="`Eliminar ${r.name}`"
+              @click="pedirEliminar(r.id, r.name)">
               <FaIcon icon="trash" />
             </button>
           </span>

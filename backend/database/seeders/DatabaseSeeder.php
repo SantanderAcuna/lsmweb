@@ -38,7 +38,13 @@ final class DatabaseSeeder extends Seeder
         $colombia = Pais::query()->where('codigo_iso', 'COL')->first();
         $municipios = Municipio::query()->pluck('id');
 
-        $dependencias = Dependencia::factory()->count(8)->create();
+        $dependencias = Dependencia::factory()
+            ->count(8)
+            ->state(fn () => [
+                'created_by' => $admin->id,
+                'updated_by' => $admin->id,
+            ])
+            ->create();
 
         ServidorPublico::factory()
             ->count(40)
