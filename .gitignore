@@ -1,0 +1,29 @@
+# PHP / Laravel
+backend/vendor/
+backend/node_modules/
+backend/public/build/
+backend/.env
+backend/.env.backup
+backend/.phpunit.cache/
+backend/storage/*.key
+backend/storage/logs/
+backend/storage/framework/cache/data/
+backend/storage/framework/sessions/
+backend/storage/framework/views/
+backend/storage/framework/testing/
+backend/storage/app/public/
+backend/bootstrap/cache/*.php
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+frontend/*.local
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

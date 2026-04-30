@@ -1,0 +1,41 @@
+openapi: 3.1.0
+info:
+  title: Sitio Web Alcaldía Distrital de Santa Marta — API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+tags:
+  - name: Auth
+  - name: Public
+  - name: Admin
+paths:
+  /auth/register: { post: { tags: [Auth], summary: Registrar ciudadano } }
+  /auth/login:    { post: { tags: [Auth], summary: Iniciar sesión } }
+  /auth/logout:   { post: { tags: [Auth], summary: Cerrar sesión, security: [{ passport: [] }] } }
+  /auth/me:       { get:  { tags: [Auth], summary: Datos del usuario, security: [{ passport: [] }] } }
+  /auth/forgot-password: { post: { tags: [Auth], summary: Enviar enlace } }
+  /auth/reset-password:  { post: { tags: [Auth], summary: Restablecer contraseña } }
+
+  /servidores-publicos:        { get: { tags: [Public], summary: Listar publicados } }
+  /servidores-publicos/export: { get: { tags: [Public], summary: Exportar CSV/JSON } }
+  /servidores-publicos/{id}:   { get: { tags: [Public], summary: Detalle público } }
+
+  /admin/servidores-publicos:
+    get:    { tags: [Admin], security: [{ passport: [servidores.view] }] }
+    post:   { tags: [Admin], security: [{ passport: [servidores.create] }] }
+  /admin/servidores-publicos/{id}:
+    get:    { tags: [Admin], security: [{ passport: [servidores.view] }] }
+    put:    { tags: [Admin], security: [{ passport: [servidores.update] }] }
+    delete: { tags: [Admin], security: [{ passport: [servidores.delete] }] }
+components:
+  securitySchemes:
+    passport:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: /oauth/token
+          scopes:
+            servidores.view: Leer servidores
+            servidores.create: Crear servidores
+            servidores.update: Modificar servidores
+            servidores.delete: Eliminar servidores

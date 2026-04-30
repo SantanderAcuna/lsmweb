@@ -1,0 +1,37 @@
+// Personalización Bootstrap 5 con identidad GOV.CO + WCAG 2.1 AA
+$primary: #003366;
+$secondary: #6c757d;
+$success: #198754;
+$info: #0dcaf0;
+$warning: #ffc107;
+$danger: #dc3545;
+$body-color: #1a1a1a;
+$body-bg: #ffffff;
+$link-color: $primary;
+$link-decoration: underline;
+$enable-rounded: true;
+
+// Bootstrap completo
+@import "bootstrap/scss/bootstrap";
+
+// Foco visible (WCAG 2.4.7)
+:focus-visible {
+  outline: 3px solid #ffbf47 !important;
+  outline-offset: 2px !important;
+  box-shadow: none !important;
+}
+
+// Topbar GOV.CO
+.gov-topbar {
+  background: #000;
+  color: #fff;
+  padding: .5rem 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: block;
+}
+.gov-topbar:hover { color: #fff; text-decoration: underline; }
+
+main { min-height: 60vh; }
+
+.required-indicator { color: $danger; margin-left: 4px; }
